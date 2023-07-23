@@ -1,3 +1,4 @@
 *.cer
 /temp
 SamTest.ps1
+variables.ps1
