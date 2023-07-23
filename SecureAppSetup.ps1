@@ -4,12 +4,12 @@ param (
     [String]$AppName,
 
     [Parameter(Mandatory=$true,
-    HelpMessage="Thumbprint of a certificate in the CurrentUser store. This cert will be added to your new application for authentication.")]
-    [String] $CertificateThumbprint,
-
-    [Parameter(Mandatory=$true,
     HelpMessage="List of Claims your application requires. Only supports adding Microsoft Graph claims. Other Microsoft resource claims will need to be added in the Entra portal.")]
-    [String[]]$Claims
+    [String[]]$Claims,
+
+    [Parameter(Mandatory=$false,
+    HelpMessage="Azure Subscription ID for creating a new key vault")]
+    [String]$SubscriptionID
 )
 
 Import-Module Microsoft.Graph.Applications
@@ -34,17 +34,10 @@ if ($null -ne (Get-MgApplication |  Where-Object DisplayName -eq $AppName)) {
     }
 }
 
-# Certificate authentication
-$cert = Get-ChildItem "Cert:/CurrentUser/My/$CertificateThumbprint"
-if($null -eq $cert) {
-        Write-Host "Unable to find certificate with specified thumbprint, aborting"
-        return
-    }
-$KeyCredentials = @(
+# Password authentication
+$PasswordCredentials = @(
     @{
-        type = "AsymmetricX509Cert"
-        usage = "Verify"
-        key = $cert.RawData
+        EndDateTime = 
     }
 )
 
